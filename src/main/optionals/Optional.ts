@@ -2,11 +2,16 @@ import { Consumer, Runnable } from '../types';
 import Verify from '../verifies/Verify';
 
 export default class Optional<T> {
-  public constructor(private readonly value: T) {
+  private static readonly EMPTY: Optional<null> = new Optional<null>(null);
+
+  public constructor(private readonly value: T | null | undefined) {}
+
+  public static from<G = unknown>(value: G | null | undefined): Optional<G> {
+    return new Optional<G>(value);
   }
 
-  public static from<G = {}>(value: G): Optional<G> {
-    return new Optional<G>(value);
+  public static empty(): Optional<null> {
+    return this.EMPTY;
   }
 
   public ifPresent(func: Consumer<NonNullable<T>>): void {
@@ -22,4 +27,9 @@ export default class Optional<T> {
       notPresentFunc();
     }
   }
+
+  public get(): T | null | undefined {
+    return this.value;
+  }
 }
+

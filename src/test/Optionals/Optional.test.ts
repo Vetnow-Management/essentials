@@ -91,4 +91,42 @@ describe('Optional', () => {
         .toBeCalled();
     });
   });
+
+  describe('Empty', () => {
+    test('Success testes', () => {
+      const isOptional = Optional.empty() instanceof Optional;
+      const mockThatShouldNotBeCalled = jest.fn();
+      const mockThatShouldBeCalled = jest.fn();
+
+      Optional.empty()
+        .ifPresent(mockThatShouldNotBeCalled);
+      Optional.empty()
+        .ifPresentOrElse(
+          mockThatShouldNotBeCalled,
+          mockThatShouldBeCalled,
+        );
+
+      expect(isOptional)
+        .toBeTruthy();
+      expect(Optional.empty().get())
+        .toBeNull();
+      expect(mockThatShouldNotBeCalled)
+        .not.toBeCalled();
+      expect(mockThatShouldBeCalled)
+        .toBeCalled();
+    });
+  });
+
+  describe('Get', () => {
+    test('Success testes', () => {
+      expect(Optional.from('flamboyant').get())
+        .toBe('flamboyant');
+      expect(
+        // @ts-ignore: So para testar se vai da erro
+        () => Optional.from<string>(null).get().toUpperCase()
+      ).toThrow();
+      expect(Optional.from<string>(null).get())
+        .toBe(null);
+    })
+  })
 });
