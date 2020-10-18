@@ -128,5 +128,130 @@ describe('Optional', () => {
       expect(Optional.from<string>(null).get())
         .toBe(null);
     })
+  });
+
+  describe('Is Present', () => {
+    test('Should always return true', () => {
+      expect(Optional.from('test').isPresent())
+        .toBeTruthy();
+      expect(Optional.from({t: 'tst'}).isPresent())
+        .toBeTruthy();
+      expect(Optional.from(true).isPresent())
+        .toBeTruthy();
+      expect(Optional.from(false).isPresent())
+        .toBeTruthy();
+      expect(Optional.from(0).isPresent())
+        .toBeTruthy();
+      expect(Optional.from(1).isPresent())
+        .toBeTruthy();
+      expect(Optional.from('').isPresent())
+        .toBeTruthy();
+      expect(Optional.from({}).isPresent())
+        .toBeTruthy();
+      expect(Optional.from([]).isPresent())
+        .toBeTruthy();
+    });
+    test('Should always return false', () => {
+      expect(Optional.from(null).isPresent())
+        .toBeFalsy();
+      expect(Optional.from(undefined).isPresent())
+        .toBeFalsy();
+    });
+  });
+
+  describe('Is Not Present', () => {
+    test('Should always return true', () => {
+      expect(Optional.from(null).isNotPresent())
+        .toBeTruthy();
+      expect(Optional.from(undefined).isNotPresent())
+        .toBeTruthy()
+    });
+    test('Should always return false', () => {
+      expect(Optional.from('test').isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from({t: 'tst'}).isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from(true).isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from(false).isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from(0).isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from(1).isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from('').isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from({}).isNotPresent())
+        .toBeFalsy();
+      expect(Optional.from([]).isNotPresent())
+        .toBeFalsy();
+    });
+  })
+
+  describe('Map', () => {
+    test('Success', () => {
+      type PessoaType = {
+        nome?: string;
+        cpf?: string;
+        endereco?: {
+          cep?: string
+        },
+        filiacao?: {
+          mae: PessoaType,
+          pai: PessoaType,
+        }
+      };
+
+      const pessoa: PessoaType = {
+        nome: 'Mateus',
+        cpf: '74917649161',
+        endereco: {
+          cep: '73062004'
+        },
+        filiacao: {
+          mae: {
+            nome: 'Adelcia',
+            cpf: '24897942217',
+            endereco: {
+              cep: '73062004',
+            },
+          },
+          pai: {
+            nome: 'Wilton',
+            cpf: undefined,
+            endereco: undefined
+          }
+        },
+      };
+
+      const cepMateus = Optional
+        .from(pessoa)
+        .map(pessoaPresent => pessoaPresent.endereco)
+        .map(endereco => endereco.cep)
+        .get();
+      const cepPai = Optional
+        .from(pessoa)
+        .map(pessoaPresent => pessoaPresent.filiacao)
+        .map(filicao => filicao.pai)
+        .map(pai => pai.endereco)
+        .map(endereco => endereco.cep)
+        .get();
+      const cpfPai = Optional
+        .from(pessoa)
+        .map(pessoaPresent => pessoaPresent.filiacao)
+        .map(filiacao => filiacao.pai)
+        .map(pai => pai.cpf)
+        .map(cpf => cpf.toUpperCase())
+        .get();
+      const nomeMae = Optional
+        .from(pessoa)
+        .map(pessoaPresent => pessoaPresent.filiacao?.mae?.nome?.toUpperCase())
+        .get();
+
+      expect(cepMateus).toBe('73062004')
+      expect(cepPai).toBeNull();
+      expect(cpfPai).toBeNull();
+      expect(nomeMae).toBe('ADELCIA');
+    });
   })
 });

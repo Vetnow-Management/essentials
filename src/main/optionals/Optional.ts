@@ -1,5 +1,6 @@
-import { Consumer, Runnable } from '../types';
+import { Consumer, Func, Runnable } from '../types';
 import Verify from '../verifies/Verify';
+import Assert from '../asserts/Assert';
 
 export default class Optional<T = unknown | null | undefined> {
   public constructor(private readonly value: T | null | undefined) {}
@@ -28,5 +29,22 @@ export default class Optional<T = unknown | null | undefined> {
 
   public get(): T | null | undefined {
     return this.value;
+  }
+
+  public isPresent(): boolean {
+    return Verify.isNotNullOrUndefined(this.value);
+  }
+
+  public isNotPresent(): boolean {
+    return Verify.isNullOrUndefined(this.value);
+  }
+
+  public map<R>(mapper: Func<NonNullable<T>, R>): Optional<R> {
+    Assert.notNullOrUndefined(mapper, { errorMessage: 'a funcao do mapper nao estar nulla'});
+
+    if (this.isPresent()) {
+     return Optional.from(mapper(this.value as NonNullable<T>));
+    }
+    return Optional.empty();
   }
 }
