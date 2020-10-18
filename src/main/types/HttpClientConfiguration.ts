@@ -6,11 +6,11 @@ export default interface HttpClientConfiguration {
   interceptors?: {
     request?: {
       onFulfilled?: Consumer<AxiosRequestConfig>[],
-      onRejected?: Consumer<AxiosResponse<string>>[],
+      onRejected?: Consumer<AxiosResponse>[],
     },
     response?: {
       onFulfilled?: Consumer<AxiosRequestConfig>[],
-      onRejected?: Consumer<AxiosResponse<string>>[],
+      onRejected?: Consumer<AxiosResponse>[],
     }
   },
 }
