@@ -253,5 +253,67 @@ describe('Optional', () => {
       expect(cpfPai).toBeNull();
       expect(nomeMae).toBe('ADELCIA');
     });
+  });
+
+  describe('orElse', () => {
+    test('Success', () => {
+      type Pessoa = {
+        endereco?: {
+          cep?: string;
+          numero?: string;
+        },
+        nome?: string;
+        idade?: number;
+      }
+
+      const pessoa: Pessoa = {
+        endereco: {
+          cep: '11111',
+          numero: '22'
+        },
+        nome: 'test'
+      };
+
+      const idade = Optional.from(pessoa)
+        .map(p => p.idade)
+        .orElse(22);
+      const nome = Optional.from(pessoa)
+        .map((p) => p.nome)
+        .orElse('outro nome');
+
+      expect(idade).toBe(22);
+      expect(nome).toBe('test');
+    });
+  });
+
+  describe('OrElseGet', () => {
+    test('Success', () => {
+      type Pessoa = {
+        endereco?: {
+          cep?: string;
+          numero?: string;
+        },
+        nome?: string;
+        idade?: number;
+      }
+
+      const pessoa: Pessoa = {
+        endereco: {
+          cep: '11111',
+          numero: '22'
+        },
+        nome: 'test'
+      };
+
+      const idade = Optional.from(pessoa)
+        .map(p => p.idade)
+        .orElseGet(() => 22);
+      const nome = Optional.from(pessoa)
+        .map((p) => p.nome)
+        .orElseGet(() => 'outro nome');
+
+      expect(idade).toBe(22);
+      expect(nome).toBe('test');
+    });
   })
 });

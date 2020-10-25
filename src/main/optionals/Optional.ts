@@ -1,6 +1,6 @@
-import { Consumer, Func, Runnable } from '../types';
-import Verify from '../verifies/Verify';
 import Assert from '../asserts/Assert';
+import Verify from '../verifies/Verify';
+import { Consumer, Func, Runnable, Supplier } from '../types';
 
 export default class Optional<T = unknown | null | undefined> {
   public constructor(private readonly value: T | null | undefined) {}
@@ -46,5 +46,21 @@ export default class Optional<T = unknown | null | undefined> {
      return Optional.from(mapper(this.value as NonNullable<T>));
     }
     return Optional.empty();
+  }
+
+  public orElse(other: NonNullable<T>): NonNullable<T> {
+    const returnValue = Verify.isNullOrUndefined(this.value)
+      ? other
+      : this.value;
+
+    return returnValue as NonNullable<T>
+  }
+
+  public orElseGet(supplier: Supplier<NonNullable<T>>): NonNullable<T> {
+    const returnValue = Verify.isNullOrUndefined(this.value)
+    ? supplier()
+    : this.value;
+
+    return returnValue as NonNullable<T>;
   }
 }
