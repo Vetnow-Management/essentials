@@ -3,6 +3,9 @@ import { AxiosRequestConfig } from 'axios';
 import { AxiosObservable } from 'axios-observable/dist/axios-observable.interface';
 
 import HttpClientConfiguration from '../types/HttpClientConfiguration';
+import { catchError } from 'rxjs/operators';
+import { OperatorFunction, throwError } from 'rxjs';
+import HttpStatus from '../types/HttpStatus';
 
 export default class HttpClient {
   private static instance: HttpClient;
@@ -27,27 +30,33 @@ export default class HttpClient {
   }
 
   public get<T>(url: string, config?: AxiosRequestConfig): AxiosObservable<T> {
-    return this.axiosInstance.get<T>(url, config);
+    return this.axiosInstance.get<T>(url, config)
+      .pipe(this.handleErro());
   }
 
   public head<T>(url: string, config?: AxiosRequestConfig): AxiosObservable<T> {
-    return this.axiosInstance.head(url, config);
+    return this.axiosInstance.head(url, config)
+      .pipe(this.handleErro());
   }
 
   public post<T>(url: string, body?: any, config?: AxiosRequestConfig): AxiosObservable<T> {
-    return this.axiosInstance.post(url, body, config);
+    return this.axiosInstance.post(url, body, config)
+      .pipe(this.handleErro());
   }
 
   public put<T>(url: string, body?: any, config?: AxiosRequestConfig): AxiosObservable<T> {
-    return this.axiosInstance.put(url, body, config);
+    return this.axiosInstance.put(url, body, config)
+      .pipe(this.handleErro());
   }
 
   public delete<T>(url: string, config?: AxiosRequestConfig): AxiosObservable<T> {
-    return this.axiosInstance.delete(url, config);
+    return this.axiosInstance.delete(url, config)
+      .pipe(this.handleErro());
   }
 
   public patch<T>(url: string, body?: any, config?: AxiosRequestConfig): AxiosObservable<T> {
-    return this.axiosInstance.patch(url, body, config);
+    return this.axiosInstance.patch(url, body, config)
+      .pipe(this.handleErro());
   }
 
   private buildRequestInterceptor(props: HttpClientConfiguration | null | undefined): void {
@@ -97,4 +106,35 @@ export default class HttpClient {
         }
       );
   }
+
+  private handleErro = (): OperatorFunction<unknown, any> => {
+    return catchError((err) => {
+      if (err.request) {
+        const {
+          responseType,
+          responseURL,
+          status,
+          statusText,
+          response,
+        } = err.request;
+
+        return throwError({
+          responseType,
+          responseURL,
+          status,
+          statusText,
+          response,
+        } as ResponseErro<any>)
+      }
+      return throwError(err);
+    })
+  }
+}
+
+export type ResponseErro<T> = {
+  responseType: string;
+  responseURL: string;
+  status: HttpStatus;
+  statusText: string;
+  response: T
 }
