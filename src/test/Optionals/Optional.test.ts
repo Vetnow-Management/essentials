@@ -31,6 +31,8 @@ describe('Optional', () => {
         .ifPresent(func);
       Optional.from(123)
         .ifPresent(func);
+      Optional.from(0)
+        .ifPresent(func);
       Optional.from(true)
         .ifPresent(func);
       Optional.from(false)
@@ -50,6 +52,41 @@ describe('Optional', () => {
         .not.toBeCalled();
     });
   });
+
+  describe('If not present', () => {
+    test('should execute function passed to ifNotPresent', () => {
+      const func = jest.fn();
+      Optional.from(null)
+        .ifNotPresent(func);
+      Optional.from(undefined)
+        .ifNotPresent(func);
+      expect(func)
+        .toBeCalledTimes(2)
+    });
+
+    test('should not execute function passed to ifNotPresent', () => {
+      const func = jest.fn();
+      Optional.from('a')
+        .ifNotPresent(func);
+      Optional.from('')
+        .ifNotPresent(func);
+      Optional.from({ a: 's' })
+        .ifNotPresent(func);
+      Optional.from(['s', { s: 's' }])
+        .ifNotPresent(func);
+      Optional.from(123)
+        .ifNotPresent(func);
+      Optional.from(0)
+        .ifNotPresent(func);
+      Optional.from(true)
+        .ifNotPresent(func);
+      Optional.from(false)
+        .ifNotPresent(func);
+
+      expect(func)
+        .not.toBeCalled();
+    });
+  })
 
   describe('If present or else', () => {
     test('should execute presentFunc passed to ifPresentOrElse', () => {
